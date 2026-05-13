@@ -1,0 +1,21 @@
+<!doctype html>
+<html>
+<head>
+    <title>Upload GIF</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+<header>
+    <h2>GIF Gallery</h2>
+    <a href="{{ url_for('home') }}">Home</a>
+</header>
+
+<div class="upload-container">
+    <h1>Upload a GIF</h1>
+    <form action="{{ url_for('upload_file') }}" method="post" enctype="multipart/form-data">
+        <input type="file" name="file" accept="image/gif" required>
+        <button type="submit">Upload</button>
+    </form>
+</div>
+</body>
+</html>
