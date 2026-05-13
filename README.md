@@ -1,4 +1,7 @@
-# Flask GIF Upload Service ![Build Status](https://github.com/jalenjaloney/flask-on-docker/actions/workflows/main.yml/badge.svg)
+# Flask GIF Upload Service 
+[![](https://github.com/jalenjaloney/final_project/actions/workflows/tests.yml/badge.svg)](https://github.com/jalenjaloney/final_project/actions?query=workflow%3Atests)
+
+
 
 ## Overview
 This repository contains a Dockerized Flask web application that allows users to upload GIFs and view them in the browser. The application is served behind Nginx and uses Docker volumes for persistent media storage.
