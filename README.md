@@ -1,5 +1,5 @@
 # Flask GIF Upload Service 
-[![](https://github.com/jalenjaleony/final_project/actions/workflows/tests.yml/badge.svg)](https://github.com/jalenjaloney/final_project/actions?query=workflow%3Atests)
+[![](https://github.com/jalenjaloney/final_project/actions/workflows/tests.yml/badge.svg)](https://github.com/jalenjaloney/final_project/actions?query=workflow%3Atests)
 
 
 
