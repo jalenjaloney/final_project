@@ -1,0 +1,62 @@
+name: tests
+
+on:
+  push:
+    branches: ['*']
+  pull_request:
+    branches: ['*']
+
+jobs:
+  test-development:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Create .env.dev
+        run: |
+          echo "FLASK_APP=project/__init__.py" > .env.dev
+          echo "FLASK_ENV=development" >> .env.dev
+          echo "SECRET_KEY=dev-secret-key" >> .env.dev
+          echo "DATABASE_URL=postgresql://hello_flask:hello_flask@db:5432/hello_flask_dev" >> .env.dev
+          echo "APP_FOLDER=/usr/src/app" >> .env.dev
+
+      - name: Run development containers
+        run: docker compose -f docker-compose.yml up -d --build
+
+      - name: Verify
+        run: |
+          sleep 10
+          docker ps -a
+
+      - name: Shutdown
+        if: always()
+        run: docker compose down -v
+
+  test-production:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Create .env files
+        run: |
+          echo "FLASK_APP=project/__init__.py" > .env.prod
+          echo "FLASK_ENV=production" >> .env.prod
+          echo "SECRET_KEY=prod-secret-key" >> .env.prod
+          echo "DATABASE_URL=postgresql://hello_flask:hello_flask@db:5432/hello_flask_prod" >> .env.prod
+          echo "APP_FOLDER=/home/app/web" >> .env.prod
+          
+          echo "POSTGRES_USER=hello_flask" > .env.prod.db
+          echo "POSTGRES_PASSWORD=hello_flask" >> .env.prod.db
+          echo "POSTGRES_DB=hello_flask_prod" >> .env.prod.db
+
+      - name: Run production containers
+        run: docker compose -f docker-compose.prod.yml up -d --build
+
+      - name: Verify
+        run: |
+          sleep 15
+          docker ps -a
+
+      - name: Shutdown
+        if: always()
+        run: docker compose -f docker-compose.prod.yml down -v
