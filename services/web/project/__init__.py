@@ -218,8 +218,10 @@ def search():
     offset = (page - 1) * per_page
     
     tweets = []
+    suggestions = []
+    
     if query:
-        # Full-text search with RUM index, ranking, and highlighting
+        # Full-text search with RUM index using <=> operator for ranking
         sql = text("""
             SELECT tweets.id_tweets, 
                    ts_headline('english', tweets.text, websearch_to_tsquery('english', :query),
@@ -228,11 +230,11 @@ def search():
                    tweets.media_filename,
                    users.username, 
                    users.name,
-                   ts_rank(tweets.text_tokens, websearch_to_tsquery('english', :query)) as rank
+                   tweets.text_tokens <=> websearch_to_tsquery('english', :query) as rank
             FROM tweets
             JOIN users ON tweets.id_users = users.id_users
             WHERE tweets.text_tokens @@ websearch_to_tsquery('english', :query)
-            ORDER BY rank DESC, tweets.created_at DESC
+            ORDER BY rank ASC, tweets.created_at DESC
             LIMIT :limit OFFSET :offset
         """)
         
@@ -242,8 +244,36 @@ def search():
             'offset': offset
         })
         tweets = result.fetchall()
+        
+        # Get spelling suggestions if no results found (EXTRA CREDIT)
+        if not tweets:
+            # Split query into words and check each for spelling suggestions
+            query_words = query.lower().split()
+            for word in query_words:
+                try:
+                    # Use pg_trgm similarity to find close matches
+                    suggest_sql = text("""
+                        SELECT word, SIMILARITY(word, :word) as sml
+                        FROM tweet_words
+                        WHERE SIMILARITY(word, :word) > 0.3
+                        ORDER BY sml DESC
+                        LIMIT 5
+                    """)
+                    
+                    result = db.session.execute(suggest_sql, {'word': word})
+                    word_suggestions = result.fetchall()
+                    
+                    # Only suggest if word isn't an exact match
+                    if word_suggestions and word_suggestions[0].sml < 1.0:
+                        suggestions.append({
+                            'original': word,
+                            'suggestions': [s.word for s in word_suggestions]
+                        })
+                except Exception as e:
+                    # tweet_words table or pg_trgm extension might not exist
+                    print(f"Spelling suggestion error: {e}")
     
-    return render_template("search.html", tweets=tweets, query=query, page=page)
+    return render_template("search.html", tweets=tweets, query=query, page=page, suggestions=suggestions)
 
 
 @app.route("/static/<path:filename>")

@@ -1,15 +1,13 @@
-from flask.cli import FlaskGroup
-from sqlalchemy import text
+#!/usr/bin/env python3
+"""
+Populate tweet_words table for spelling suggestions (extra credit)
+Run this after loading tweets data
+"""
 
 from project import app, db
+from sqlalchemy import text
 
-
-cli = FlaskGroup(app)
-
-
-@cli.command("populate_words")
-def populate_words():
-    """Populate tweet_words table for spelling suggestions (extra credit)"""
+with app.app_context():
     try:
         print("Populating tweet_words table for spelling suggestions...")
         
@@ -39,7 +37,3 @@ def populate_words():
         print("  1. pg_trgm extension is installed")
         print("  2. tweet_words table exists in schema")
         print("  3. Tweets have been loaded")
-
-
-if __name__ == "__main__":
-    cli()

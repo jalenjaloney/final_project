@@ -19,6 +19,7 @@
     <h2>notwitter</h2>
     <nav>
         <a href="/">Home</a> |
+        <a href="/search">Search</a> |
         {% if session.get('user_id') %}
             <a href="/create_message">Post</a> |
             <span style="color: #b2c8df;">{{ session.get('name') }} @{{ session.get('username') }}</span> |
@@ -57,6 +58,21 @@
     </form>
     
     {% if query %}
+        {% if suggestions %}
+            <div style="background: #fff3cd; padding: 12px; margin-bottom: 15px; border: 2px solid #ffc107; border-radius: 4px;">
+                <p style="margin: 0 0 8px 0; font-weight: bold;">Did you mean:</p>
+                {% for suggestion in suggestions %}
+                    <div style="margin-bottom: 4px;">
+                        <span style="color: #666;">{{ suggestion.original }} →</span>
+                        {% for word in suggestion.suggestions[:3] %}
+                            <a href="/search?query={{ query.replace(suggestion.original, word) }}" 
+                               style="margin: 0 4px; color: #0066cc; text-decoration: underline;">{{ word }}</a>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        
         {% if tweets %}
             <p style="text-align: center; margin-bottom: 15px;">Found {{ tweets|length }} results for "{{ query }}"</p>
             
