@@ -219,8 +219,18 @@ def search():
 
     tweets = []
     suggestions = []
+    total_count = 0
 
     if query:
+        # Get total count of matching results
+        count_sql = text("""
+            SELECT COUNT(*)
+            FROM tweets
+            WHERE tweets.text_tokens @@ websearch_to_tsquery('english', :query)
+        """)
+        count_result = db.session.execute(count_sql, {'query': query})
+        total_count = count_result.scalar()
+
         # Full-text search with RUM index using <=> operator for ranking
         sql = text("""
             SELECT tweets.id_tweets,
@@ -250,17 +260,27 @@ def search():
             # Split query into words and check each for spelling suggestions
             query_words = query.lower().split()
             for word in query_words:
+                # Skip very short words (too many false matches)
+                if len(word) < 3:
+                    continue
+
                 try:
-                    # Use pg_trgm similarity to find close matches
+                    # Use % operator (optimized for GIN index) and length filter
+                    # Only suggest words of similar length (within 2 characters)
                     suggest_sql = text("""
                         SELECT word, SIMILARITY(word, :word) as sml
                         FROM tweet_words
-                        WHERE SIMILARITY(word, :word) > 0.3
+                        WHERE word % :word
+                          AND LENGTH(word) BETWEEN :min_len AND :max_len
                         ORDER BY sml DESC
-                        LIMIT 5
+                        LIMIT 3
                     """)
 
-                    result = db.session.execute(suggest_sql, {'word': word})
+                    result = db.session.execute(suggest_sql, {
+                        'word': word,
+                        'min_len': len(word) - 2,
+                        'max_len': len(word) + 2
+                    })
                     word_suggestions = result.fetchall()
 
                     # Only suggest if word isn't an exact match
@@ -273,7 +293,7 @@ def search():
                     # tweet_words table or pg_trgm extension might not exist
                     print(f"Spelling suggestion error: {e}")
 
-    return render_template("search.html", tweets=tweets, query=query, page=page, suggestions=suggestions)
+    return render_template("search.html", tweets=tweets, query=query, page=page, suggestions=suggestions, total_count=total_count)
 
 
 @app.route("/static/<path:filename>")

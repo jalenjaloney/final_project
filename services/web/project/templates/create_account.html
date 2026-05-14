@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
 <head>
-    <title>Post Message - notwitter</title>
+    <title>Create Account - notwitter</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 
@@ -36,26 +36,37 @@
 {% endwith %}
 
 <div class="tweets">
-    <h1 style="text-align: center; margin-bottom: 20px;">Post a Message</h1>
+    <h1 style="text-align: center; margin-bottom: 20px;">Create Account</h1>
     
-    <form method="POST" enctype="multipart/form-data" style="background: #fff; padding: 15px; border-top: 2px solid #dfdfdf; border-left: 2px solid #dfdfdf; border-right: 2px solid #808080; border-bottom: 2px solid #808080;">
+    <form method="POST" action="/create_account" style="background: #fff; padding: 15px; border-top: 2px solid #dfdfdf; border-left: 2px solid #dfdfdf; border-right: 2px solid #808080; border-bottom: 2px solid #808080;">
         <div style="margin-bottom: 15px;">
-            <label for="text" style="display: block; margin-bottom: 4px; font-weight: bold;">Message:</label>
-            <textarea id="text" name="text" required rows="5"
-                   style="width: 100%; padding: 4px; border-top: 2px solid #808080; border-left: 2px solid #808080; border-right: 2px solid #dfdfdf; border-bottom: 2px solid #dfdfdf; font-family: 'MS Sans Serif', Arial; font-size: 11px; box-sizing: border-box; resize: vertical;"></textarea>
+            <label for="username" style="display: block; margin-bottom: 4px; font-weight: bold;">Username:</label>
+            <input type="text" id="username" name="username" required
+                   style="width: 100%; padding: 4px; border-top: 2px solid #808080; border-left: 2px solid #808080; border-right: 2px solid #dfdfdf; border-bottom: 2px solid #dfdfdf; font-family: 'MS Sans Serif', Arial; font-size: 11px; box-sizing: border-box;">
         </div>
         
         <div style="margin-bottom: 15px;">
-            <label for="image" style="display: block; margin-bottom: 4px; font-weight: bold;">Image (optional):</label>
-            <input type="file" id="image" name="image" accept="image/*"
-                   style="font-family: 'MS Sans Serif', Arial; font-size: 11px;">
-            <small style="color: #808080; display: block; margin-top: 4px;">Supported: jpg, png, gif, webp</small>
+            <label for="name" style="display: block; margin-bottom: 4px; font-weight: bold;">Display Name:</label>
+            <input type="text" id="name" name="name" required
+                   style="width: 100%; padding: 4px; border-top: 2px solid #808080; border-left: 2px solid #808080; border-right: 2px solid #dfdfdf; border-bottom: 2px solid #dfdfdf; font-family: 'MS Sans Serif', Arial; font-size: 11px; box-sizing: border-box;">
+        </div>
+        
+        <div style="margin-bottom: 15px;">
+            <label for="password" style="display: block; margin-bottom: 4px; font-weight: bold;">Password:</label>
+            <input type="password" id="password" name="password" required
+                   style="width: 100%; padding: 4px; border-top: 2px solid #808080; border-left: 2px solid #808080; border-right: 2px solid #dfdfdf; border-bottom: 2px solid #dfdfdf; font-family: 'MS Sans Serif', Arial; font-size: 11px; box-sizing: border-box;">
+        </div>
+        
+        <div style="margin-bottom: 15px;">
+            <label for="password_confirm" style="display: block; margin-bottom: 4px; font-weight: bold;">Confirm Password:</label>
+            <input type="password" id="password_confirm" name="password_confirm" required
+                   style="width: 100%; padding: 4px; border-top: 2px solid #808080; border-left: 2px solid #808080; border-right: 2px solid #dfdfdf; border-bottom: 2px solid #dfdfdf; font-family: 'MS Sans Serif', Arial; font-size: 11px; box-sizing: border-box;">
         </div>
         
         <div style="text-align: center;">
             <button type="submit" 
                     style="padding: 6px 20px; background: #c0c0c0; color: #000; border-top: 2px solid #dfdfdf; border-left: 2px solid #dfdfdf; border-right: 2px solid #000; border-bottom: 2px solid #000; font-weight: bold; font-size: 11px;">
-                Post Message
+                Create Account
             </button>
         </div>
     </form>

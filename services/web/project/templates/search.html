@@ -74,7 +74,7 @@
         {% endif %}
         
         {% if tweets %}
-            <p style="text-align: center; margin-bottom: 15px;">Found {{ tweets|length }} results for "{{ query }}"</p>
+            <p style="text-align: center; margin-bottom: 15px;">Found {{ total_count }} result{% if total_count != 1 %}s{% endif %} for "{{ query }}"</p>
             
             {% for tweet in tweets %}
                 <div class="tweet">
