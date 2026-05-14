@@ -10,26 +10,26 @@ from sqlalchemy import text
 with app.app_context():
     try:
         print("Populating tweet_words table for spelling suggestions...")
-        
+
         # Extract unique words from all tweets using ts_stat
         sql = text("""
             INSERT INTO tweet_words (word)
-            SELECT DISTINCT word 
+            SELECT DISTINCT word
             FROM ts_stat('SELECT text_tokens FROM tweets')
             ON CONFLICT (word) DO NOTHING
         """)
-        
+
         db.session.execute(sql)
         db.session.commit()
-        
+
         # Count words added
         count_sql = text("SELECT COUNT(*) FROM tweet_words")
         result = db.session.execute(count_sql)
         count = result.scalar()
-        
+
         print(f"✓ Successfully populated tweet_words table with {count} unique words")
         print("✓ Spelling suggestions are now enabled for search!")
-        
+
     except Exception as e:
         db.session.rollback()
         print(f"✗ Error populating tweet_words: {e}")
