@@ -1,94 +1,215 @@
-body {
-    font-family: Arial, sans-serif;
-    background: #f4f4f4;
-    margin: 0;
-    padding: 0;
+/* Windows 95 Scrollbar Styling */
+::-webkit-scrollbar {
+    width: 16px;
+    height: 16px;
 }
 
+::-webkit-scrollbar-track {
+    background: #c0c0c0;
+    border: 1px solid #808080;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #c0c0c0;
+    border-top: 2px solid #dfdfdf;
+    border-left: 2px solid #dfdfdf;
+    border-right: 2px solid #000;
+    border-bottom: 2px solid #000;
+}
+
+::-webkit-scrollbar-button {
+    background: #c0c0c0;
+    border-top: 2px solid #dfdfdf;
+    border-left: 2px solid #dfdfdf;
+    border-right: 2px solid #000;
+    border-bottom: 2px solid #000;
+}
+
+/* Base Styles */
+body {
+    font-family: 'MS Sans Serif', 'Tahoma', 'Verdana', Arial, sans-serif;
+    font-size: 11px;
+    background: #008080;
+    margin: 0;
+    padding: 20px;
+    color: #000;
+    -webkit-font-smoothing: none;
+    -moz-osx-font-smoothing: grayscale;
+    font-smooth: never;
+}
+
+/* Header */
 header {
-    background: #111;
+    background: #000080;
     color: white;
-    padding: 1rem 2rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    padding: 4px;
+    margin-bottom: 10px;
+    border-top: 2px solid #fff;
+    border-left: 2px solid #fff;
+    border-right: 2px solid #000;
+    border-bottom: 2px solid #000;
+}
+
+header h2 {
+    margin: 4px;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+header nav {
+    margin: 4px;
 }
 
 header a {
     color: white;
     text-decoration: none;
-    margin-left: 1rem;
+    margin-right: 10px;
+    padding: 2px 4px;
+}
+
+header a:hover {
+    background: #0000ff;
+}
+
+/* Main Container */
+.tweets {
+    max-width: 600px;
+    margin: 0 auto;
+    background: #c0c0c0;
+    padding: 10px;
+    border-top: 2px solid #dfdfdf;
+    border-left: 2px solid #dfdfdf;
+    border-right: 2px solid #000;
+    border-bottom: 2px solid #000;
+}
+
+/* Tweet Box - Windows 95 Window Style */
+.tweet {
+    background: #fff;
+    padding: 8px;
+    margin-bottom: 8px;
+    border-top: 2px solid #dfdfdf;
+    border-left: 2px solid #dfdfdf;
+    border-right: 2px solid #808080;
+    border-bottom: 2px solid #808080;
+}
+
+.tweet strong {
+    color: #000080;
     font-weight: bold;
 }
 
-.gallery {
-    column-count: 4;
-    column-gap: 1rem;
-    padding: 1rem;
+.tweet .timestamp {
+    color: #808080;
+    font-size: 11px;
+    margin-left: 8px;
 }
 
-.gallery-item {
-    break-inside: avoid;
-    margin-bottom: 1rem;
-    background: white;
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+.tweet p {
+    margin: 8px 0;
+    line-height: 1.4;
+    font-size: 13px;
 }
 
-.gallery-item img {
-    width: 100%;
-    display: block;
+.tweet img {
+    max-width: 100%;
+    border: 1px solid #000;
+    margin-top: 8px;
 }
 
-.filename {
-    padding: 0.5rem;
-    font-size: 0.8rem;
-    color: #555;
+/* Links - Blue with White Shadow */
+a:link {
+    text-decoration: underline;
+    color: #ffffff;
+                 -1px 1px 0 #fff, 1px 1px 0 #fff;
 }
 
-@media (max-width: 1200px) {
-    .gallery { column-count: 3; }
+a:visited {
+    color: #ffffff;
 }
 
-@media (max-width: 800px) {
-    .gallery { column-count: 2; }
+a:hover {
+    color: #0000ff;
+    text-shadow: -1px -1px 0 #c0c0c0, 1px -1px 0 #c0c0c0, 
+                 -1px 1px 0 #c0c0c0, 1px 1px 0 #c0c0c0;
 }
 
-@media (max-width: 500px) {
-    .gallery { column-count: 1; }
+/* Pagination Buttons */
+.pagination {
+    text-align: center;
+    padding: 10px;
+    margin: 10px 0;
 }
 
+.pagination a {
+    display: inline-block;
+    padding: 4px 12px;
+    margin: 0 4px;
+    background: #c0c0c0;
+    color: #000;
+    text-decoration: none;
+    border-top: 2px solid #dfdfdf;
+    border-left: 2px solid #dfdfdf;
+    border-right: 2px solid #000;
+    border-bottom: 2px solid #000;
+    font-weight: bold;
+    text-shadow: none;
+}
+
+.pagination a:hover {
+    background: #dfdfdf;
+}
+
+.pagination a:active {
+    border-top: 2px solid #000;
+    border-left: 2px solid #000;
+    border-right: 2px solid #dfdfdf;
+    border-bottom: 2px solid #dfdfdf;
+}
+
+/* Upload Container */
 .upload-container {
     max-width: 600px;
-    margin: 2rem auto;
-    background: white;
-    padding: 2rem;
-    border-radius: 10px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    margin: 0 auto;
+    background: #c0c0c0;
+    padding: 10px;
+    border-top: 2px solid #dfdfdf;
+    border-left: 2px solid #dfdfdf;
+    border-right: 2px solid #000;
+    border-bottom: 2px solid #000;
 }
 
 .upload-container h1 {
     text-align: center;
-    margin-bottom: 1.5rem;
-}
-
-.upload-container input[type="file"] {
-    display: block;
-    margin: 1rem auto;
+    margin-bottom: 10px;
+    font-size: 16px;
 }
 
 .upload-container button {
-    display: block;
-    margin: 1rem auto;
-    padding: 0.5rem 1.5rem;
-    background: #111;
-    color: white;
-    border: none;
-    border-radius: 5px;
+    padding: 4px 12px;
+    background: #c0c0c0;
+    color: #000;
+    border-top: 2px solid #dfdfdf;
+    border-left: 2px solid #dfdfdf;
+    border-right: 2px solid #000;
+    border-bottom: 2px solid #000;
+    font-weight: bold;
     cursor: pointer;
 }
 
 .upload-container button:hover {
-    background: #333;
+    background: #dfdfdf;
+}
+
+.upload-container button:active {
+    border-top: 2px solid #000;
+    border-left: 2px solid #000;
+    border-right: 2px solid #dfdfdf;
+    border-bottom: 2px solid #dfdfdf;
+}
+
+/* No tweets message */
+p {
+    text-align: center;
+    padding: 20px;
 }

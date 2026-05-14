@@ -42,6 +42,7 @@ def home():
         FROM tweets
         JOIN users ON tweets.id_users = users.id_users
         ORDER BY tweets.created_at DESC
+        LIMIT :limit OFFSET :offset
     """)
 
     result = db.session.execute(sql, {'limit': per_page, 'offset': offset})
