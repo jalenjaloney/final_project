@@ -167,14 +167,14 @@ def create_message():
     if not session.get('user_id'):
         flash("You must be logged in to post a message")
         return redirect(url_for('login'))
-    
+
     if request.method == "POST":
         message_text = request.form.get("text")
-        
+
         if not message_text:
             flash("Message cannot be empty")
             return render_template("create_message.html")
-        
+
         # Handle image upload
         media_filename = None
         if 'image' in request.files:
@@ -186,7 +186,7 @@ def create_message():
                 timestamp = int(time.time())
                 media_filename = f"{timestamp}_{filename}"
                 file.save(os.path.join(app.config["MEDIA_FOLDER"], media_filename))
-        
+
         try:
             sql = text("""
                 INSERT INTO tweets (id_tweets, id_users, created_at, text, media_filename, text_tokens)
@@ -198,15 +198,15 @@ def create_message():
                 'media_filename': media_filename
             })
             db.session.commit()
-            
+
             flash("Message posted!")
             return redirect(url_for('home'))
-            
+
         except Exception as e:
             db.session.rollback()
             flash(f"Error posting message: {str(e)}")
             return render_template("create_message.html")
-    
+
     return render_template("create_message.html")
 
 
@@ -216,19 +216,19 @@ def search():
     page = request.args.get('page', 1, type=int)
     per_page = 20
     offset = (page - 1) * per_page
-    
+
     tweets = []
     suggestions = []
-    
+
     if query:
         # Full-text search with RUM index using <=> operator for ranking
         sql = text("""
-            SELECT tweets.id_tweets, 
+            SELECT tweets.id_tweets,
                    ts_headline('english', tweets.text, websearch_to_tsquery('english', :query),
                               'StartSel=<mark>, StopSel=</mark>') as highlighted_text,
                    tweets.created_at,
                    tweets.media_filename,
-                   users.username, 
+                   users.username,
                    users.name,
                    tweets.text_tokens <=> websearch_to_tsquery('english', :query) as rank
             FROM tweets
@@ -237,14 +237,14 @@ def search():
             ORDER BY rank ASC, tweets.created_at DESC
             LIMIT :limit OFFSET :offset
         """)
-        
+
         result = db.session.execute(sql, {
             'query': query,
             'limit': per_page,
             'offset': offset
         })
         tweets = result.fetchall()
-        
+
         # Get spelling suggestions if no results found (EXTRA CREDIT)
         if not tweets:
             # Split query into words and check each for spelling suggestions
@@ -259,10 +259,10 @@ def search():
                         ORDER BY sml DESC
                         LIMIT 5
                     """)
-                    
+
                     result = db.session.execute(suggest_sql, {'word': word})
                     word_suggestions = result.fetchall()
-                    
+
                     # Only suggest if word isn't an exact match
                     if word_suggestions and word_suggestions[0].sml < 1.0:
                         suggestions.append({
@@ -272,7 +272,7 @@ def search():
                 except Exception as e:
                     # tweet_words table or pg_trgm extension might not exist
                     print(f"Spelling suggestion error: {e}")
-    
+
     return render_template("search.html", tweets=tweets, query=query, page=page, suggestions=suggestions)
 
 
