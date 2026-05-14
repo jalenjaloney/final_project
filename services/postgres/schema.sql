@@ -5,7 +5,7 @@ CREATE EXTENSION rum;
 BEGIN;
 
 CREATE TABLE users (
-    id_users BIGINT PRIMARY KEY,
+    id_users BIGSERIAL PRIMARY KEY,
     screen_name TEXT,
     name TEXT,
     created_at TIMESTAMPTZ

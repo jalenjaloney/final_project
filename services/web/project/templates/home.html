@@ -11,7 +11,13 @@
     <h2>notwitter</h2>
     <nav>
         <a href="/">Home</a>
-        <a href="/upload">Upload</a>
+        {% if session.get('user_id') %}
+            <span style="color: #b2c8df;">@{{ session.get('screen_name') }}</span> |
+            <a href="/logout">Logout</a>
+        {% else %}
+            <a href="/login">Login</a> |
+            <a href="/create_account">Create Account</a>
+        {% endif %}
     </nav>
 </header>
 

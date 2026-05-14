@@ -1,0 +1,73 @@
+<!doctype html>
+<html>
+<head>
+    <title>Create Account - notwitter</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+
+<body>
+
+<header>
+    <h2>notwitter</h2>
+    <nav>
+        <a href="/">Home</a> |
+        <a href="/login">Login</a> |
+        <a href="/create_account">Create Account</a>
+    </nav>
+</header>
+
+<div class="tweets">
+    <h1 style="text-align: center; margin-bottom: 20px;">Create Account</h1>
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+                <div style="background: #fff; padding: 8px; margin-bottom: 8px; border: 2px solid #ff0000; color: #000;">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <form method="POST" style="background: #fff; padding: 15px; border-top: 2px solid #dfdfdf; border-left: 2px solid #dfdfdf; border-right: 2px solid #808080; border-bottom: 2px solid #808080;">
+        <div style="margin-bottom: 15px;">
+            <label for="username" style="display: block; margin-bottom: 4px; font-weight: bold;">Username:</label>
+            <input type="text" id="username" name="username" required
+                   style="width: 100%; padding: 4px; border-top: 2px solid #808080; border-left: 2px solid #808080; border-right: 2px solid #dfdfdf; border-bottom: 2px solid #dfdfdf; font-family: 'MS Sans Serif', Arial; font-size: 11px; box-sizing: border-box;">
+            <small style="color: #808080;">Used for login</small>
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <label for="password" style="display: block; margin-bottom: 4px; font-weight: bold;">Password:</label>
+            <input type="password" id="password" name="password" required
+                   style="width: 100%; padding: 4px; border-top: 2px solid #808080; border-left: 2px solid #808080; border-right: 2px solid #dfdfdf; border-bottom: 2px solid #dfdfdf; font-family: 'MS Sans Serif', Arial; font-size: 11px; box-sizing: border-box;">
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <label for="screen_name" style="display: block; margin-bottom: 4px; font-weight: bold;">Screen Name:</label>
+            <input type="text" id="screen_name" name="screen_name" required
+                   style="width: 100%; padding: 4px; border-top: 2px solid #808080; border-left: 2px solid #808080; border-right: 2px solid #dfdfdf; border-bottom: 2px solid #dfdfdf; font-family: 'MS Sans Serif', Arial; font-size: 11px; box-sizing: border-box;">
+            <small style="color: #808080;">Your @handle (e.g., @cooluser)</small>
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <label for="name" style="display: block; margin-bottom: 4px; font-weight: bold;">Display Name (optional):</label>
+            <input type="text" id="name" name="name"
+                   style="width: 100%; padding: 4px; border-top: 2px solid #808080; border-left: 2px solid #808080; border-right: 2px solid #dfdfdf; border-bottom: 2px solid #dfdfdf; font-family: 'MS Sans Serif', Arial; font-size: 11px; box-sizing: border-box;">
+        </div>
+
+        <div style="text-align: center;">
+            <button type="submit"
+                    style="padding: 6px 20px; background: #c0c0c0; color: #000; border-top: 2px solid #dfdfdf; border-left: 2px solid #dfdfdf; border-right: 2px solid #000; border-bottom: 2px solid #000; font-weight: bold; font-size: 11px;">
+                Create Account
+            </button>
+        </div>
+    </form>
+
+    <p style="text-align: center; margin-top: 15px;">
+        Already have an account? <a href="/login">Login here</a>
+    </p>
+</div>
+
+</body>
+</html>
