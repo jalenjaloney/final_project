@@ -9,6 +9,7 @@ from flask import (
     render_template,
 )
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import text
 from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
@@ -29,15 +30,24 @@ class User(db.Model):
 
 @app.route("/")
 def home():
-    media_folder = app.config["MEDIA_FOLDER"]
 
-    if not os.path.exists(media_folder):
-        files = []
-    else:
-        files = os.listdir(media_folder)
-        random.shuffle(files)
+    page = request.args.get('page', 1, type=int)
+    per_page = 20
+    offset = (page - 1) * per_page
 
-    return render_template("home.html", files=files)
+    sql = text("""
+        SELECT tweets.id_tweets, tweets.text, tweets.created_at,
+               tweets.media_filename,
+               users.screen_name, users.name
+        FROM tweets
+        JOIN users ON tweets.id_users = users.id_users
+        ORDER BY tweets.created_at DESC
+    """)
+
+    result = db.session.execute(sql, {'limit': per_page, 'offset': offset})
+    tweets = result.fetchall()
+
+    return render_template("home.html", tweets=tweets, page=page)
 
 
 @app.route("/static/<path:filename>")

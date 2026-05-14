@@ -1,29 +1,41 @@
 <!doctype html>
 <html>
 <head>
-    <title>GIF Gallery</title>
+    <title>notwitter</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 
 <body>
 
 <header>
-    <h2>GIF Gallery</h2>
+    <h2>Home</h2>
     <nav>
         <a href="/">Home</a>
         <a href="/upload">Upload</a>
     </nav>
 </header>
 
-<div class="gallery">
-    {% if files %}
-        {% for file in files %}
-            <div class="gallery-item">
-                <img src="/media/{{ file }}">
+<div class="tweets">
+    {% if tweets %}
+        {% for tweet in tweets %}
+            <div class="tweet">
+                <strong>@{{ tweet.screen_name }}</strong>
+                {% if tweet.name %}({{ tweet.name }}){% endif %}
+                <span class="timestamp">{{ tweet.created_at }}</span>
+                <p>{{ tweet.text }}</p>
+                {% if tweet.media_filename %}
+                    <img src="/media/{{ tweet.media_filename }}" style="max-width: 400px;">
+                {% endif %}
             </div>
         {% endfor %}
+        <div class="pagination">
+            {% if page > 1 %}
+                <a href="/?page={{ page - 1 }}">Previous</a>
+            {% endif %}
+            <a href="/?page={{ page + 1 }}">Next</a>
+        </div>
     {% else %}
-        <p>No uploads yet.</p>
+        <p> No tweets yet </p>
     {% endif %}
 </div>
 
