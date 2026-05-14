@@ -10,9 +10,11 @@
 <header>
     <h2>notwitter</h2>
     <nav>
-        <a href="/">Home</a>
+        <a href="/">Home</a> |
+        <a href="/search">Search</a> |
         {% if session.get('user_id') %}
-            <span style="color: #b2c8df;">@{{ session.get('screen_name') }}</span> |
+            <a href="/create_message">Post</a> |
+            <span style="color: #b2c8df;">{{ session.get('name') }} @{{ session.get('username') }}</span> |
             <a href="/logout">Logout</a>
         {% else %}
             <a href="/login">Login</a> |
@@ -21,12 +23,24 @@
     </nav>
 </header>
 
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        <div style="max-width: 600px; margin: 0 auto 10px auto;">
+            {% for message in messages %}
+                <div style="background: #fff; padding: 8px; margin-bottom: 4px; border: 2px solid #000080; color: #000; text-align: center;">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endwith %}
+
 <div class="tweets">
     {% if tweets %}
         {% for tweet in tweets %}
             <div class="tweet">
-                <strong>@{{ tweet.screen_name }}</strong>
-                {% if tweet.name %}({{ tweet.name }}){% endif %}
+                <strong>{{ tweet.name }}</strong>
+                <span style="color: #808080;">@{{ tweet.username }}</span>
                 <span class="timestamp">{{ tweet.created_at }}</span>
                 <p>{{ tweet.text }}</p>
                 {% if tweet.media_filename %}

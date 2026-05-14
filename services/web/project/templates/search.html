@@ -1,0 +1,93 @@
+<!doctype html>
+<html>
+<head>
+    <title>Search - notwitter</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        mark {
+            background-color: #ffff00;
+            color: #000;
+            padding: 2px 4px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h2>notwitter</h2>
+    <nav>
+        <a href="/">Home</a> |
+        {% if session.get('user_id') %}
+            <a href="/create_message">Post</a> |
+            <span style="color: #b2c8df;">{{ session.get('name') }} @{{ session.get('username') }}</span> |
+            <a href="/logout">Logout</a>
+        {% else %}
+            <a href="/login">Login</a> |
+            <a href="/create_account">Create Account</a>
+        {% endif %}
+    </nav>
+</header>
+
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        <div style="max-width: 600px; margin: 0 auto 10px auto;">
+            {% for message in messages %}
+                <div style="background: #fff; padding: 8px; margin-bottom: 4px; border: 2px solid #000080; color: #000; text-align: center;">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endwith %}
+
+<div class="tweets">
+    <h1 style="text-align: center; margin-bottom: 20px;">Search Messages</h1>
+    
+    <form method="GET" action="/search" style="background: #fff; padding: 15px; margin-bottom: 15px; border-top: 2px solid #dfdfdf; border-left: 2px solid #dfdfdf; border-right: 2px solid #808080; border-bottom: 2px solid #808080;">
+        <div style="display: flex; gap: 8px;">
+            <input type="text" name="query" value="{{ query }}" placeholder="Search messages..." required
+                   style="flex: 1; padding: 4px; border-top: 2px solid #808080; border-left: 2px solid #808080; border-right: 2px solid #dfdfdf; border-bottom: 2px solid #dfdfdf; font-family: 'MS Sans Serif', Arial; font-size: 11px;">
+            <button type="submit" 
+                    style="padding: 4px 16px; background: #c0c0c0; color: #000; border-top: 2px solid #dfdfdf; border-left: 2px solid #dfdfdf; border-right: 2px solid #000; border-bottom: 2px solid #000; font-weight: bold; font-size: 11px;">
+                Search
+            </button>
+        </div>
+    </form>
+    
+    {% if query %}
+        {% if tweets %}
+            <p style="text-align: center; margin-bottom: 15px;">Found {{ tweets|length }} results for "{{ query }}"</p>
+            
+            {% for tweet in tweets %}
+                <div class="tweet">
+                    <strong>{{ tweet.name }}</strong>
+                    <span style="color: #808080;">@{{ tweet.username }}</span>
+                    <span class="timestamp">{{ tweet.created_at }}</span>
+                    <p>{{ tweet.highlighted_text | safe }}</p>
+                    {% if tweet.media_filename %}
+                        <img src="/media/{{ tweet.media_filename }}" style="max-width: 400px;">
+                    {% endif %}
+                </div>
+            {% endfor %}
+            
+            <div class="pagination">
+                {% if page > 1 %}
+                    <a href="/search?query={{ query }}&page={{ page - 1 }}">Previous</a>
+                {% endif %}
+                <span style="padding: 0 8px; color: #000;">Page {{ page }}</span>
+                {% if tweets|length == 20 %}
+                    <a href="/search?query={{ query }}&page={{ page + 1 }}">Next</a>
+                {% endif %}
+            </div>
+        {% else %}
+            <p style="text-align: center; padding: 20px; background: #fff; border: 2px inset;">No results found for "{{ query }}"</p>
+        {% endif %}
+    {% else %}
+        <p style="text-align: center; padding: 20px; background: #fff; border: 2px inset;">Enter a search query above to find messages</p>
+    {% endif %}
+</div>
+
+</body>
+</html>

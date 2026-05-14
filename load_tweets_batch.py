@@ -70,7 +70,7 @@ def _insert_tweets(connection,input_tweets):
         users.append({
             'id_users':tweet['user']['id'],
             'created_at':tweet['user']['created_at'],
-            'screen_name':remove_nulls(tweet['user']['screen_name']),
+            'username':remove_nulls(tweet['user']['screen_name']),
             'name':remove_nulls(tweet['user']['name']),
             })
 
@@ -88,7 +88,7 @@ def _insert_tweets(connection,input_tweets):
                 media = tweet['extended_entities']['media']
             except KeyError:
                 media = []
-        
+
         if len(media) > 0:
             media_filename = media[0]['media_url']
 
@@ -102,7 +102,7 @@ def _insert_tweets(connection,input_tweets):
 
     with connection.begin() as trans:
         bulk_insert(connection, 'users', users)
-        
+
         if len(tweets) > 0:
             sql = sqlalchemy.sql.text('''
             INSERT INTO tweets

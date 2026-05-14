@@ -11,6 +11,7 @@ from flask import (
     redirect,
     url_for,
     flash,
+    make_response,
 )
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import text
@@ -19,8 +20,11 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 app.config.from_object("project.config.Config")
-app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-key-change-in-production")
+app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-secret-key-change-in-production")
 db = SQLAlchemy(app)
+
+# Ensure media folder exists
+os.makedirs(app.config["MEDIA_FOLDER"], exist_ok=True)
 
 
 @app.route("/")
@@ -33,7 +37,7 @@ def home():
     sql = text("""
         SELECT tweets.id_tweets, tweets.text, tweets.created_at,
                tweets.media_filename,
-               users.screen_name, users.name
+               users.username, users.name
         FROM tweets
         JOIN users ON tweets.id_users = users.id_users
         ORDER BY tweets.created_at DESC
@@ -59,7 +63,7 @@ def login():
         # Check credentials
         sql = text("""
             SELECT credentials.id_credentials, credentials.id_users,
-                   credentials.password, users.screen_name
+                   credentials.password, users.username, users.name
             FROM credentials
             JOIN users ON credentials.id_users = users.id_users
             WHERE credentials.username = :username
@@ -70,8 +74,9 @@ def login():
 
         if user and check_password_hash(user.password, password):
             session['user_id'] = user.id_users
-            session['screen_name'] = user.screen_name
-            flash(f"Welcome back, @{user.screen_name}!")
+            session['username'] = user.username
+            session['name'] = user.name
+            flash(f"Welcome back, @{user.username}!")
             return redirect(url_for('home'))
         else:
             flash("Invalid username or password")
@@ -82,9 +87,11 @@ def login():
 
 @app.route("/logout")
 def logout():
+    resp = make_response(redirect(url_for('home')))
+    resp.set_cookie('session', '', expires=0)  # Delete session cookie per stackoverflow
     session.clear()
     flash("You have been logged out")
-    return redirect(url_for('home'))
+    return resp
 
 
 @app.route("/create_account", methods=["GET", "POST"])
@@ -92,15 +99,20 @@ def create_account():
     if request.method == "POST":
         username = request.form.get("username")
         password = request.form.get("password")
-        screen_name = request.form.get("screen_name")
+        password_confirm = request.form.get("password_confirm")
         name = request.form.get("name")
 
-        if not username or not password or not screen_name:
-            flash("Username, password, and screen name are required")
+        if not username or not password or not name:
+            flash("Username, password, and display name are required")
+            return render_template("create_account.html")
+
+        # Check if passwords match
+        if password != password_confirm:
+            flash("Passwords do not match")
             return render_template("create_account.html")
 
         # Check if username exists
-        sql = text("SELECT id_credentials FROM credentials WHERE username = :username")
+        sql = text("SELECT id_users FROM users WHERE username = :username")
         result = db.session.execute(sql, {'username': username})
         if result.fetchone():
             flash("Username already exists")
@@ -110,13 +122,13 @@ def create_account():
         try:
             # Insert into users table
             sql = text("""
-                INSERT INTO users (screen_name, name, created_at)
-                VALUES (:screen_name, :name, NOW())
+                INSERT INTO users (username, name, created_at)
+                VALUES (:username, :name, NOW())
                 RETURNING id_users
             """)
             result = db.session.execute(sql, {
-                'screen_name': screen_name,
-                'name': name or screen_name
+                'username': username,
+                'name': name
             })
             user_id = result.fetchone()[0]
 
@@ -136,8 +148,9 @@ def create_account():
 
             # Auto-login
             session['user_id'] = user_id
-            session['screen_name'] = screen_name
-            flash(f"Account created! Welcome, @{screen_name}!")
+            session['username'] = username
+            session['name'] = name
+            flash(f"Account created! Welcome, @{username}!")
             return redirect(url_for('home'))
 
         except Exception as e:
@@ -146,6 +159,91 @@ def create_account():
             return render_template("create_account.html")
 
     return render_template("create_account.html")
+
+
+@app.route("/create_message", methods=["GET", "POST"])
+def create_message():
+    # Must be logged in
+    if not session.get('user_id'):
+        flash("You must be logged in to post a message")
+        return redirect(url_for('login'))
+    
+    if request.method == "POST":
+        message_text = request.form.get("text")
+        
+        if not message_text:
+            flash("Message cannot be empty")
+            return render_template("create_message.html")
+        
+        # Handle image upload
+        media_filename = None
+        if 'image' in request.files:
+            file = request.files['image']
+            if file and file.filename and allowed_file(file.filename):
+                filename = secure_filename(file.filename)
+                # Add timestamp to avoid filename collisions
+                import time
+                timestamp = int(time.time())
+                media_filename = f"{timestamp}_{filename}"
+                file.save(os.path.join(app.config["MEDIA_FOLDER"], media_filename))
+        
+        try:
+            sql = text("""
+                INSERT INTO tweets (id_tweets, id_users, created_at, text, media_filename, text_tokens)
+                VALUES (nextval('tweets_id_seq'), :id_users, NOW(), :text, :media_filename, to_tsvector('english', :text))
+            """)
+            db.session.execute(sql, {
+                'id_users': session['user_id'],
+                'text': message_text,
+                'media_filename': media_filename
+            })
+            db.session.commit()
+            
+            flash("Message posted!")
+            return redirect(url_for('home'))
+            
+        except Exception as e:
+            db.session.rollback()
+            flash(f"Error posting message: {str(e)}")
+            return render_template("create_message.html")
+    
+    return render_template("create_message.html")
+
+
+@app.route("/search")
+def search():
+    query = request.args.get('query', '')
+    page = request.args.get('page', 1, type=int)
+    per_page = 20
+    offset = (page - 1) * per_page
+    
+    tweets = []
+    if query:
+        # Full-text search with RUM index, ranking, and highlighting
+        sql = text("""
+            SELECT tweets.id_tweets, 
+                   ts_headline('english', tweets.text, websearch_to_tsquery('english', :query),
+                              'StartSel=<mark>, StopSel=</mark>') as highlighted_text,
+                   tweets.created_at,
+                   tweets.media_filename,
+                   users.username, 
+                   users.name,
+                   ts_rank(tweets.text_tokens, websearch_to_tsquery('english', :query)) as rank
+            FROM tweets
+            JOIN users ON tweets.id_users = users.id_users
+            WHERE tweets.text_tokens @@ websearch_to_tsquery('english', :query)
+            ORDER BY rank DESC, tweets.created_at DESC
+            LIMIT :limit OFFSET :offset
+        """)
+        
+        result = db.session.execute(sql, {
+            'query': query,
+            'limit': per_page,
+            'offset': offset
+        })
+        tweets = result.fetchall()
+    
+    return render_template("search.html", tweets=tweets, query=query, page=page)
 
 
 @app.route("/static/<path:filename>")
@@ -158,7 +256,7 @@ def mediafiles(filename):
     return send_from_directory(app.config["MEDIA_FOLDER"], filename)
 
 
-ALLOWED_EXTENSIONS = {"gif"}
+ALLOWED_EXTENSIONS = {"gif", "jpg", "jpeg", "png", "webp"}
 
 
 def allowed_file(filename):

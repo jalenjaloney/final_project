@@ -4,10 +4,13 @@ CREATE EXTENSION rum;
 
 BEGIN;
 
+-- avoid conflicts with imported tweets
+CREATE SEQUENCE tweets_id_seq START WITH 9000000000000000000;
+
 CREATE TABLE users (
     id_users BIGSERIAL PRIMARY KEY,
-    screen_name TEXT,
-    name TEXT,
+    username TEXT UNIQUE NOT NULL,
+    name TEXT NOT NULL,
     created_at TIMESTAMPTZ
 );
 

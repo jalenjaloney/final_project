@@ -1,0 +1,64 @@
+<!doctype html>
+<html>
+<head>
+    <title>Post Message - notwitter</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+
+<body>
+
+<header>
+    <h2>notwitter</h2>
+    <nav>
+        <a href="/">Home</a> |
+        {% if session.get('user_id') %}
+            <a href="/create_message">Post</a> |
+            <span style="color: #b2c8df;">{{ session.get('name') }} @{{ session.get('username') }}</span> |
+            <a href="/logout">Logout</a>
+        {% else %}
+            <a href="/login">Login</a> |
+            <a href="/create_account">Create Account</a>
+        {% endif %}
+    </nav>
+</header>
+
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        <div style="max-width: 600px; margin: 0 auto 10px auto;">
+            {% for message in messages %}
+                <div style="background: #fff; padding: 8px; margin-bottom: 4px; border: 2px solid #000080; color: #000; text-align: center;">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endwith %}
+
+<div class="tweets">
+    <h1 style="text-align: center; margin-bottom: 20px;">Post a Message</h1>
+
+    <form method="POST" enctype="multipart/form-data" style="background: #fff; padding: 15px; border-top: 2px solid #dfdfdf; border-left: 2px solid #dfdfdf; border-right: 2px solid #808080; border-bottom: 2px solid #808080;">
+        <div style="margin-bottom: 15px;">
+            <label for="text" style="display: block; margin-bottom: 4px; font-weight: bold;">Message:</label>
+            <textarea id="text" name="text" required rows="5"
+                   style="width: 100%; padding: 4px; border-top: 2px solid #808080; border-left: 2px solid #808080; border-right: 2px solid #dfdfdf; border-bottom: 2px solid #dfdfdf; font-family: 'MS Sans Serif', Arial; font-size: 11px; box-sizing: border-box; resize: vertical;"></textarea>
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <label for="image" style="display: block; margin-bottom: 4px; font-weight: bold;">Image (optional):</label>
+            <input type="file" id="image" name="image" accept="image/*"
+                   style="font-family: 'MS Sans Serif', Arial; font-size: 11px;">
+            <small style="color: #808080; display: block; margin-top: 4px;">Supported: jpg, png, gif, webp</small>
+        </div>
+
+        <div style="text-align: center;">
+            <button type="submit"
+                    style="padding: 6px 20px; background: #c0c0c0; color: #000; border-top: 2px solid #dfdfdf; border-left: 2px solid #dfdfdf; border-right: 2px solid #000; border-bottom: 2px solid #000; font-weight: bold; font-size: 11px;">
+                Post Message
+            </button>
+        </div>
+    </form>
+</div>
+
+</body>
+</html>
